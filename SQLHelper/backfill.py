@@ -160,7 +160,7 @@ class SQLBackfill(SQLBase):
     def _table_does_not_exist(self, dataset):
         """Check if dataset exists"""
         try:
-            _ = self.sample(dataset)
+            _ = self.sample(dataset, verbose=False)
             return False
         except AnalysisException:
             return True
