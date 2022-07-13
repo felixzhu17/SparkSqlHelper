@@ -98,7 +98,9 @@ class SQLBackfill(SQLBase):
                 self.logger.info(f"Skipping {date} as it already exists")
                 pass
 
-        for date in tqdm(pd.date_range(start=start_date, end=end_date, freq=freq)):
+        pbar = tqdm(pd.date_range(start=start_date, end=end_date, freq=freq))
+        for date in pbar:
+            pbar.set_description(f"Backfilling {date.strftime('%Y-%m-%d')}")
             if create_table:
                 self.logger.info(
                     f"Creating new table {table_name} using {'delta' if delta else 'parquet'}"
