@@ -20,7 +20,7 @@ class SQLBackfill(SQLBase):
         end_date: str,
         freq: str = "d",
         delta: bool = True,
-        overwrite: bool = False,
+        overwrite: bool = True,
     ):
         """Back-fill tables partitioned by day. Automatically creates tables if does not exist. Skips days which already exists.
 
@@ -29,9 +29,9 @@ class SQLBackfill(SQLBase):
             query (list): Queries to backfill with. Date formats should be wrapped in {{}} to be replaced. e.g {{%Y-%m-%d}}
             start_date (str): Start date of backfill
             end_date (str): End date of backfill
-            freq (str): Frequency of dates
+            freq (str): Frequency of backfill
             delta (bool): Whether to use delta format
-            overwrite (bool): Whether to overwrite existing rows or skip
+            overwrite (bool): Whether to overwrite existing days
 
         """
 
@@ -58,7 +58,7 @@ class SQLBackfill(SQLBase):
         end_date: str,
         freq: str = "d",
         delta: bool = True,
-        overwrite: bool = False,
+        overwrite: bool = True,
     ):
         """Back-fill a table partitioned by day. Automatically creates table if does not exist. Skips days which already exists.
 
@@ -67,17 +67,21 @@ class SQLBackfill(SQLBase):
             query (str): Query to backfill with. Date formats should be wrapped in {{}} to be replaced. e.g {{%Y-%m-%d}}
             start_date (str): Start date of backfill
             end_date (str): End date of backfill
-            freq (str): Frequency of dates
+            freq (str): Frequency of backfill
             delta (bool): Whether to use delta format
-            overwrite (bool): Whether to overwrite existing rows or skip
+            overwrite (bool): Whether to overwrite existing days
 
         """
         table_creation_sql = (
             self.delta_table_creation_sql if delta else self.parquet_table_creation_sql
         )
+
         table_append_sql = (
-            self.delta_table_append_sql if delta else self.parquet_table_append_sql
+            self.delta_table_append_sql
+            if delta and overwrite
+            else self.parquet_table_append_sql
         )
+
         create_table = self._table_does_not_exist(table_name)
 
         def run_query():
@@ -105,10 +109,7 @@ class SQLBackfill(SQLBase):
                 if overwrite:
                     run_query()
                 else:
-                    if delta:
-                        run_query()
-                    else:
-                        run_query_with_day_check()
+                    run_query_with_day_check()
 
     def parquet_table_creation_sql(self, table, query, day):
         return f"""
@@ -169,6 +170,7 @@ class SQLBackfill(SQLBase):
 
     def format_query_date(self, query, day):
         """Format dates wrapped in {{}}"""
+
         def replace(match):
             date_format = match.group()[2:-2]
             return day.strftime(date_format)

@@ -111,8 +111,8 @@ class SQLBase(Logging):
         """
         if verbose:
             self.logger.info(f"Downloading {n} samples of {dataset} {day_message}")
-        if self.print_query:
-            print(query)
+            if self.print_query:
+                print(query)
         return self.run_query(query)
 
     def nrows(
