@@ -168,6 +168,7 @@ class SQLBackfill(SQLBase):
         )
 
     def format_query_date(self, query, day):
+        """Format dates wrapped in {{}}"""
         def replace(match):
             date_format = match.group()[2:-2]
             return day.strftime(date_format)
