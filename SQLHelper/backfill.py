@@ -38,17 +38,22 @@ class SQLBackfill(SQLBase):
         if len(table_names) != len(queries):
             raise ValueError("Number of queries must be equal to number of table names")
 
+        output = []
         for table_name, query in zip(table_names, queries):
             self.logger.info("Backfilling {table_name}")
-            self.backfill_table(
-                table_name=table_name,
-                query=query,
-                start_date=start_date,
-                end_date=end_date,
-                freq=freq,
-                delta=delta,
-                overwrite=overwrite,
+            output.append(
+                self.backfill_table(
+                    table_name=table_name,
+                    query=query,
+                    start_date=start_date,
+                    end_date=end_date,
+                    freq=freq,
+                    delta=delta,
+                    overwrite=overwrite,
+                )
             )
+
+        return output
 
     def backfill_table(
         self,
@@ -60,7 +65,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
     ):
-        """Back-fill a table partitioned by day. Automatically creates table if does not exist. 
+        """Back-fill a table partitioned by day. Automatically creates table if does not exist.
 
         Args:
             table_name (str): Name of table to backfill
@@ -84,20 +89,34 @@ class SQLBackfill(SQLBase):
 
         create_table = self._table_does_not_exist(table_name)
 
-        def run_query():
+        def run_query(table_name, query, date):
             try:
                 self.run_query(table_append_sql(table_name, query, date))
+                return {
+                    "date": date.strftime("%Y-%m-%d"),
+                    "success": True,
+                    "details": None,
+                }
             except Exception as e:
-                print(e)
-                pass
+                self.logger.error(f"{date.strftime('%Y-%m-%d')}: {e}")
+                return {
+                    "date": date.strftime("%Y-%m-%d"),
+                    "success": False,
+                    "details": e,
+                }
 
-        def run_query_with_day_check():
+        def run_query_with_day_check(table_name, query, date):
             if self._day_does_not_exist(table_name, date):
-                run_query()
+                return run_query(table_name, query, date)
             else:
                 self.logger.info(f"Skipping {date} as it already exists")
-                pass
+                return {
+                    "date": date.strftime("%Y-%m-%d"),
+                    "success": False,
+                    "details": f"Skipping {date} as it already exists",
+                }
 
+        output = []
         pbar = tqdm(pd.date_range(start=start_date, end=end_date, freq=freq))
         for date in pbar:
             pbar.set_description(f"Backfilling {date.strftime('%Y-%m-%d')}")
@@ -105,13 +124,16 @@ class SQLBackfill(SQLBase):
                 self.logger.info(
                     f"Creating new table {table_name} using {'delta' if delta else 'parquet'}"
                 )
-                self.run_query(table_creation_sql(table_name, query, date))
+                output.append(
+                    self.run_query(table_creation_sql(table_name, query, date))
+                )
                 create_table = False
             else:
                 if overwrite:
-                    run_query()
+                    output.append(run_query(table_name, query, date))
                 else:
-                    run_query_with_day_check()
+                    output.append(run_query_with_day_check(table_name, query, date))
+        return output
 
     def parquet_table_creation_sql(self, table, query, day):
         return f"""
