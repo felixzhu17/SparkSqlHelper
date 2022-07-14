@@ -21,6 +21,7 @@ class SQLBackfill(SQLBase):
         freq: str = "d",
         delta: bool = True,
         overwrite: bool = True,
+        return_log: bool = False,
     ):
         """Back-fill tables partitioned by day. Automatically creates tables if does not exist.
 
@@ -32,6 +33,7 @@ class SQLBackfill(SQLBase):
             freq (str): Frequency of backfill
             delta (bool): Whether to use delta format
             overwrite (bool): Whether to overwrite existing days
+            return_log (bool): Whether to return log of backfill
 
         """
 
@@ -53,7 +55,8 @@ class SQLBackfill(SQLBase):
                 )
             )
 
-        return output
+        if return_log:
+            return output
 
     def backfill_table(
         self,
@@ -64,6 +67,7 @@ class SQLBackfill(SQLBase):
         freq: str = "d",
         delta: bool = True,
         overwrite: bool = True,
+        return_log: bool = False,
     ):
         """Back-fill a table partitioned by day. Automatically creates table if does not exist.
 
@@ -75,6 +79,7 @@ class SQLBackfill(SQLBase):
             freq (str): Frequency of backfill
             delta (bool): Whether to use delta format
             overwrite (bool): Whether to overwrite existing days
+            return_log (bool): Whether to return log of backfill
 
         """
         table_creation_sql = (
@@ -136,7 +141,8 @@ class SQLBackfill(SQLBase):
                     output.append(run_query(table_name, query, date))
                 else:
                     output.append(run_query_with_day_check(table_name, query, date))
-        return output
+        if return_log:
+            return output
 
     def parquet_table_creation_sql(self, table, query, day):
         return f"""
