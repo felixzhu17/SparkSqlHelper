@@ -91,6 +91,7 @@ class SQLBackfill(SQLBase):
 
         def run_query(table_name, query, date):
             try:
+                self.logger.info(f"Backfilling {date.strftime('%Y-%m-%d')}")
                 self.run_query(table_append_sql(table_name, query, date))
                 return {
                     "date": date.strftime("%Y-%m-%d"),
@@ -109,11 +110,13 @@ class SQLBackfill(SQLBase):
             if self._day_does_not_exist(table_name, date):
                 return run_query(table_name, query, date)
             else:
-                self.logger.info(f"Skipping {date} as it already exists")
+                self.logger.info(
+                    f"Skipping {date.strftime('%Y-%m-%d')} as it already exists"
+                )
                 return {
                     "date": date.strftime("%Y-%m-%d"),
                     "success": False,
-                    "details": f"Skipping {date} as it already exists",
+                    "details": f"Skipping {date.strftime('%Y-%m-%d')} as it already exists",
                 }
 
         output = []
