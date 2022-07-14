@@ -22,7 +22,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
     ):
-        """Back-fill tables partitioned by day. Automatically creates tables if does not exist. Skips days which already exists.
+        """Back-fill tables partitioned by day. Automatically creates tables if does not exist.
 
         Args:
             table_names (list): Name of tables to backfill
@@ -60,7 +60,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
     ):
-        """Back-fill a table partitioned by day. Automatically creates table if does not exist. Skips days which already exists.
+        """Back-fill a table partitioned by day. Automatically creates table if does not exist. 
 
         Args:
             table_name (str): Name of table to backfill
