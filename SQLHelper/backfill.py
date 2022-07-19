@@ -22,6 +22,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
         return_log: bool = False,
+        break_on_fail: bool = False,
     ):
         """Back-fill tables partitioned by day. Automatically creates tables if does not exist.
 
@@ -34,6 +35,7 @@ class SQLBackfill(SQLBase):
             delta (bool): Whether to use delta format
             overwrite (bool): Whether to overwrite existing days
             return_log (bool): Whether to return log of backfill
+            break_on_fail (bool): Whether to raise error if query does not run
 
         """
 
@@ -52,6 +54,7 @@ class SQLBackfill(SQLBase):
                     freq=freq,
                     delta=delta,
                     overwrite=overwrite,
+                    break_on_fail=break_on_fail,
                 )
             )
 
@@ -68,6 +71,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
         return_log: bool = False,
+        break_on_fail: bool = False,
     ):
         """Back-fill a table partitioned by day. Automatically creates table if does not exist.
 
@@ -80,6 +84,7 @@ class SQLBackfill(SQLBase):
             delta (bool): Whether to use delta format
             overwrite (bool): Whether to overwrite existing days
             return_log (bool): Whether to return log of backfill
+            break_on_fail (bool): Whether to raise error if query does not run
 
         """
         table_creation_sql = (
@@ -104,12 +109,15 @@ class SQLBackfill(SQLBase):
                     "details": None,
                 }
             except Exception as e:
-                self.logger.error(f"{date.strftime('%Y-%m-%d')}: {e}")
-                return {
-                    "date": date.strftime("%Y-%m-%d"),
-                    "success": False,
-                    "details": e,
-                }
+                if break_on_fail:
+                    raise e
+                else:
+                    self.logger.error(f"{date.strftime('%Y-%m-%d')}: {e}")
+                    return {
+                        "date": date.strftime("%Y-%m-%d"),
+                        "success": False,
+                        "details": e,
+                    }
 
         def run_query_with_day_check(table_name, query, date):
             if self._day_does_not_exist(table_name, date):
