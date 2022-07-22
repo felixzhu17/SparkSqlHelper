@@ -243,7 +243,7 @@ class SQLBase(Logging):
             self.logger.info(f"Inserting into {table_name}")
             return self.run_query(query)
         else:
-            self.update_df(df, table_name)
+            raise ValueError(f"{table_name} already exists")
 
     def update_df(self, df: pd.DataFrame, table_name: str):
         """Update SQL dataset from Pandas Dataframe
