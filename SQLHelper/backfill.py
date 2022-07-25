@@ -22,6 +22,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
         break_on_fail: bool = True,
+        reverse: bool = False,
     ):
         """Back-fill tables partitioned by day. Automatically creates tables if does not exist.
 
@@ -35,6 +36,7 @@ class SQLBackfill(SQLBase):
             overwrite (bool): Whether to overwrite existing days
             return_log (bool): Whether to return log of backfill
             break_on_fail (bool): Whether to raise error if query does not run
+            reverse (bool): Whether to reverse backfill
 
         """
 
@@ -64,6 +66,7 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
         break_on_fail: bool = True,
+        reverse: bool = False,
     ):
         """Back-fill a table partitioned by day. Automatically creates table if does not exist.
 
@@ -77,6 +80,7 @@ class SQLBackfill(SQLBase):
             overwrite (bool): Whether to overwrite existing days
             return_log (bool): Whether to return log of backfill
             break_on_fail (bool): Whether to raise error if query does not run
+            reverse (bool): Whether to reverse backfill
 
         """
         table_creation_sql = (
@@ -109,7 +113,11 @@ class SQLBackfill(SQLBase):
                     f"Skipping {date.strftime('%Y-%m-%d')} as it already exists"
                 )
 
-        pbar = tqdm(pd.date_range(start=start_date, end=end_date, freq=freq))
+        iterator = pd.date_range(start=start_date, end=end_date, freq=freq)
+        if reverse:
+            iterator = reversed(iterator)
+        pbar = tqdm(iterator)
+
         for date in pbar:
             pbar.set_description(f"Backfilling {date.strftime('%Y-%m-%d')}")
             if create_table:
