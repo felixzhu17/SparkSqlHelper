@@ -44,7 +44,7 @@ class SQLBackfill(SQLBase):
             raise ValueError("Number of queries must be equal to number of table names")
 
         for table_name, query in zip(table_names, queries):
-            self.logger.info("Backfilling {table_name}")
+            self.logger.info(f"Backfilling {table_name}")
             self.backfill_table(
                 table_name=table_name,
                 query=query,
