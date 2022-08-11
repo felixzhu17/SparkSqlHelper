@@ -97,7 +97,9 @@ class SQLBackfill(SQLBase):
 
         def run_query(table_name, query, date):
             try:
-                self.logger.info(f"Backfilling {date.strftime('%Y-%m-%d')}")
+                self.logger.info(
+                    f"Backfilling {date.strftime('%Y-%m-%d')} into {table_name}"
+                )
                 self.run_query(table_append_sql(table_name, query, date))
             except Exception as e:
                 if break_on_fail:
