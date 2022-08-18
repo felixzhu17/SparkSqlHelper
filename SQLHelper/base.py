@@ -305,3 +305,28 @@ class SQLBase(Logging):
                 FROM {table_b}
                 )"""
         return self.run_query(query).iloc[0][0]
+
+    def get_partitions(self, table: str):
+        """Show partitions of a table
+        Args:
+            table (str): Name of table
+
+        """
+
+        query = f"""SHOW PARTITIONS {table}"""
+        partitions = self.run_query(query)
+        return [i.strip("day=") for i in partitions["partition"]]
+
+    def check_missing_days(self, table, start_day, end_day):
+        """Find missing days in the partitions of a table between two dates
+
+        Args:
+            table (str): Name of table
+            start_day (str): Start day to check missing days
+            end_day (str): End day to check missing days
+
+        """
+
+        existing_partitions = pd.to_datetime(self.get_partitions(table))
+        required_partitions = pd.date_range(start_day, end_day)
+        return required_partitions.difference(existing_partitions)
