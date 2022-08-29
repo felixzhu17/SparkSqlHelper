@@ -100,9 +100,6 @@ class SQLBackfill(SQLBase):
                 self.logger.info(
                     f"Backfilling {date.strftime('%Y-%m-%d')} into {table_name}"
                 )
-
-                print(table_append_sql(table_name, query, date))
-
                 self.run_query(table_append_sql(table_name, query, date))
             except Exception as e:
                 if break_on_fail:
@@ -173,7 +170,7 @@ class SQLBackfill(SQLBase):
 
     def delta_table_append_sql(self, table, query, day):
         return (
-            f"""delete from {table} where day = '{day}'""",
+            f"""delete from {table} where day = '{day.strftime('%Y-%m-%d')}'""",
             f"""insert into table {table}
         select *
         from (
