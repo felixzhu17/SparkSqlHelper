@@ -100,6 +100,9 @@ class SQLBackfill(SQLBase):
                 self.logger.info(
                     f"Backfilling {date.strftime('%Y-%m-%d')} into {table_name}"
                 )
+
+                print(table_append_sql(table_name, query, date))
+
                 self.run_query(table_append_sql(table_name, query, date))
             except Exception as e:
                 if break_on_fail:
