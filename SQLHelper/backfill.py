@@ -22,7 +22,6 @@ class SQLBackfill(SQLBase):
         delta: bool = True,
         overwrite: bool = True,
         break_on_fail: bool = True,
-        reverse: bool = False,
     ):
         """Back-fill tables partitioned by day. Automatically creates tables if does not exist.
 
@@ -36,7 +35,6 @@ class SQLBackfill(SQLBase):
             overwrite (bool): Whether to overwrite existing days
             return_log (bool): Whether to return log of backfill
             break_on_fail (bool): Whether to raise error if query does not run
-            reverse (bool): Whether to reverse backfill
 
         """
 

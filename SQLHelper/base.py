@@ -315,7 +315,10 @@ class SQLBase(Logging):
 
         query = f"""SHOW PARTITIONS {table}"""
         partitions = self.run_query(query)
-        return [i.strip("day=") for i in partitions["partition"]]
+        try:
+            return [i.strip("day=") for i in partitions["partition"]]
+        except:
+            return [i.strip("day=") for i in partitions["day"]]
 
     def check_missing_days(self, table, start_day, end_day):
         """Find missing days in the partitions of a table between two dates
