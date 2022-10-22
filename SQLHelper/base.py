@@ -234,7 +234,7 @@ class SQLBase(Logging):
         """
 
         if self._table_does_not_exist(table_name):
-            sql_table = self.spark.createDataFrame(df)
+            sql_table = self.spark.createDataFrame(self._convert_nan_to_none(df))
             sql_table.createOrReplaceTempView("sql_table")
             query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} as 
@@ -333,3 +333,6 @@ class SQLBase(Logging):
         existing_partitions = pd.to_datetime(self.get_partitions(table))
         required_partitions = pd.date_range(start_day, end_day)
         return required_partitions.difference(existing_partitions)
+
+    def _convert_nan_to_none(self, df):
+        return df.where(pd.notnull(df), None)
