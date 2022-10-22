@@ -336,3 +336,11 @@ class SQLBase(Logging):
 
     def _convert_nan_to_none(self, df):
         return df.where(pd.notnull(df), None)
+
+    def _table_does_not_exist(self, dataset):
+        """Check if dataset exists"""
+        try:
+            _ = self.sample(dataset, verbose=False)
+            return False
+        except AnalysisException:
+            return True
