@@ -332,7 +332,9 @@ class SQLBase(Logging):
 
         existing_partitions = pd.to_datetime(self.get_partitions(table))
         required_partitions = pd.date_range(start_day, end_day)
-        return required_partitions.difference(existing_partitions)
+        return list(
+            required_partitions.difference(existing_partitions).strftime("%Y-%m-%d")
+        )
 
     def _convert_nan_to_none(self, df):
         return df.where(pd.notnull(df), None)

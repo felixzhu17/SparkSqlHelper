@@ -130,7 +130,14 @@ class SQLBackfill(SQLBase):
                 if overwrite:
                     run_query(table_name, query, date)
                 else:
+
                     run_query_with_day_check(table_name, query, date)
+
+        missing_days = self.check_missing_days(table_name, start_date, end_date)
+        if len(missing_days) > 0:
+            self.logger.warning(
+                f"{missing_days} not filled. Please check the code and try again."
+            )
         return
 
     def parquet_table_creation_sql(self, table, query, day):
