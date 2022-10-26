@@ -91,8 +91,6 @@ class SQLBackfill(SQLBase):
             else self.parquet_table_append_sql
         )
 
-        create_table = self._table_does_not_exist(table_name)
-
         def run_query(table_name, query, date):
             try:
                 self.logger.info(
@@ -113,7 +111,17 @@ class SQLBackfill(SQLBase):
                     f"Skipping {date.strftime('%Y-%m-%d')} as it already exists"
                 )
 
-        iterator = pd.date_range(start=start_date, end=end_date, freq=freq)
+        create_table = self._table_does_not_exist(table_name)
+
+        if overwrite or create_table:
+            iterator = pd.date_range(start=start_date, end=end_date, freq=freq)
+        else:
+            missing_days = self.check_missing_days(table_name, start_date, end_date)
+            self.logger.info(f"Backfilling missing days: {missing_days}")
+            iterator = pd.to_datetime(
+                self.check_missing_days(table_name, start_date, end_date)
+            )
+
         if reverse:
             iterator = reversed(iterator)
         pbar = tqdm(iterator)
