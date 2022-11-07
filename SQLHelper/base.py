@@ -336,6 +336,30 @@ class SQLBase(Logging):
             required_partitions.difference(existing_partitions).strftime("%Y-%m-%d")
         )
 
+    def assert_table_updated(self, table, column, reporting_delay=1, day_col="day"):
+        """Assert that the latest value for a column is after the current date
+
+        Args:
+            table (str): Name of table
+            column (str): Column to check
+            reporting_delay (int): Days before current date to check
+            day_col (str): Day column to check
+
+        """
+
+        MAX_DAY_QUERY = f"""
+        SELECT max({day_col})
+        FROM {table}
+        WHERE {column} is not NULL
+        """
+        table_latest_day = pd.to_datetime(self.run_query(MAX_DAY_QUERY).iloc[0, 0])
+        cutoff_day = pd.to_datetime("today") - pd.Timedelta(days=reporting_delay)
+
+        if table_latest_day < cutoff_day:
+            raise ValueError(f"{table} has not been updated since {table_latest_day}")
+
+        return
+
     def _convert_nan_to_none(self, df):
         return df.where(pd.notnull(df), None)
 
