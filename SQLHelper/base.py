@@ -356,7 +356,9 @@ class SQLBase(Logging):
         cutoff_day = pd.to_datetime("today") - pd.Timedelta(days=reporting_delay)
 
         if table_latest_day < cutoff_day:
-            raise ValueError(f"{table} has not been updated since {table_latest_day}")
+            raise ValueError(
+                f"{table} has not been updated since {table_latest_day.strftime('%Y-%m-%d')}"
+            )
 
         return
 
