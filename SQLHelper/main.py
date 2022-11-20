@@ -3,9 +3,9 @@ from .base import SQLBase
 
 
 class SQLHelper(SQLBackfill, SQLBase):
-    def __init__(self, spark):
-        SQLBase.__init__(self, spark)
-        SQLBackfill.__init__(self, spark)
+    def __init__(self, spark, print_query=True):
+        SQLBase.__init__(self, spark, print_query)
+        SQLBackfill.__init__(self, spark, print_query)
 
     def print_selection(self, features, table_name=None):
         if table_name:

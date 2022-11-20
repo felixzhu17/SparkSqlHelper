@@ -9,8 +9,8 @@ from .utils import *
 
 
 class SQLBackfill(SQLBase):
-    def __init__(self, spark):
-        SQLBase.__init__(self, spark)
+    def __init__(self, spark, print_query=True):
+        SQLBase.__init__(self, spark, print_query=print_query)
 
     def backfill_workflow(
         self,

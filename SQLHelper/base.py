@@ -9,12 +9,12 @@ from .utils import *
 
 
 class SQLBase(Logging):
-    def __init__(self, spark):
+    def __init__(self, spark, print_query=True):
         self.spark = spark
         self.spark.conf.set(
             "spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation", "true"
         )
-        self.print_query = True
+        self.print_query = print_query
         Logging.__init__(self)
 
     def run_query(self, query: str or list):
