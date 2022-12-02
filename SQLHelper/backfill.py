@@ -1,7 +1,6 @@
 from typing import List
 
 import pandas as pd
-from pyspark.sql.utils import AnalysisException
 from tqdm import tqdm
 
 from .base import SQLBase
@@ -114,7 +113,9 @@ class SQLBackfill(SQLBase):
         if overwrite or create_table:
             iterator = pd.date_range(start=start_date, end=end_date, freq=freq)
         else:
-            missing_days = self.check_missing_days(table_name, start_date, end_date)
+            missing_days = self.check_missing_days(
+                table_name, start_date, end_date, freq
+            )
             self.logger.info(f"Backfilling missing days: {missing_days}")
             iterator = pd.to_datetime(
                 self.check_missing_days(table_name, start_date, end_date)

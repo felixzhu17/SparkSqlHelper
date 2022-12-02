@@ -1,8 +1,5 @@
-import re
-
 import pandas as pd
 from pyspark.sql.utils import AnalysisException
-from tqdm import tqdm
 
 from .logging import Logging
 from .utils import *
@@ -320,18 +317,18 @@ class SQLBase(Logging):
         except:
             return [i.strip("day=") for i in partitions["day"]]
 
-    def check_missing_days(self, table, start_day, end_day):
+    def check_missing_days(self, table, start_day, end_day, freq="d"):
         """Find missing days in the partitions of a table between two dates
 
         Args:
             table (str): Name of table
             start_day (str): Start day to check missing days
             end_day (str): End day to check missing days
-
+            freq (str): Frequency of days to check
         """
 
         existing_partitions = pd.to_datetime(self.get_partitions(table))
-        required_partitions = pd.date_range(start_day, end_day)
+        required_partitions = pd.date_range(start_day, end_day, freq=freq)
         return list(
             required_partitions.difference(existing_partitions).strftime("%Y-%m-%d")
         )
