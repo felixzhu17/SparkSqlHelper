@@ -117,9 +117,7 @@ class SQLBackfill(SQLBase):
                 table_name, start_date, end_date, freq
             )
             self.logger.info(f"Backfilling missing days: {missing_days}")
-            iterator = pd.to_datetime(
-                self.check_missing_days(table_name, start_date, end_date)
-            )
+            iterator = pd.to_datetime(missing_days)
 
         if reverse:
             iterator = reversed(iterator)
