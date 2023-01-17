@@ -209,6 +209,10 @@ class SQLBase(Logging):
             print(query)
         return self.run_query(query)
 
+    def drop(self, table):
+        """Drop a table"""
+        self.run_query(f"""DROP TABLE {table}""")
+
     def create_table(self, table, query):
         """Create table using a query
 
