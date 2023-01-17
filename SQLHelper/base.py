@@ -234,7 +234,7 @@ class SQLBase(Logging):
             sql_table = self.spark.createDataFrame(self._convert_nan_to_none(df))
             sql_table.createOrReplaceTempView("sql_table")
             query = f"""
-            CREATE TABLE IF NOT EXISTS {table_name} as 
+            CREATE TABLE IF NOT EXISTS {table_name} using delta as 
             (SELECT * FROM sql_table)
             """
             self.logger.info(f"Inserting into {table_name}")
