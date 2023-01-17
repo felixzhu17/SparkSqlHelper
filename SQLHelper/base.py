@@ -217,7 +217,7 @@ class SQLBase(Logging):
             query (str): Query to create the table
         """
 
-        query = f"""CREATE TABLE {table} as ({query})"""
+        query = f"""CREATE TABLE {table} using delta as ({query})"""
         self.run_query(query)
         return
 
