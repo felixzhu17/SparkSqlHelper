@@ -1,5 +1,6 @@
 from .backfill import SQLBackfill
 from .base import SQLBase
+from .utils import *
 
 
 class SQLHelper(SQLBackfill, SQLBase):
@@ -13,3 +14,14 @@ class SQLHelper(SQLBackfill, SQLBase):
 
         else:
             print(", ".join([f"{i} \n" for i in features]))
+
+    def get_exploded_identifiers_query(self, query, identifiers_dict, all_value="All"):
+        def get_exploded_query(field_dict):
+            return query.replace("{{IDENTIFIERS}}", get_selection_query(field_dict))
+
+        return "\n\n UNION ALL \n\n".join(
+            [
+                get_exploded_query(field_dict)
+                for field_dict in permutate_dictionary(identifiers_dict, all_value)
+            ]
+        )
